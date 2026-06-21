@@ -19,4 +19,10 @@ public class CategoryController {
         return categories;
     }
 
+    @PostMapping("public/category")
+    public String addCategory(@RequestBody Category category){
+        categories.add(category);
+        return "Added Successfully";
+    }
+
 }
