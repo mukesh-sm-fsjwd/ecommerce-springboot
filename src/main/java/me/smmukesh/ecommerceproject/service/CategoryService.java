@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class CategoryService {
@@ -28,4 +29,15 @@ public class CategoryService {
         return categories;
     }
 
+    public boolean deleteCategory(int categoryId){
+        boolean isDone = false;
+        Optional<Category> category = categories.stream()
+                .filter(c -> c.getCategoryId() ==  categoryId)
+                .findFirst();
+        if(category.isPresent()){
+            isDone = true;
+            categories.remove(category.get());
+        }
+        return isDone;
+    }
 }
