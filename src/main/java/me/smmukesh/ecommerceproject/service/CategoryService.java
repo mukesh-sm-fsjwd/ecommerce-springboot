@@ -19,7 +19,7 @@ public class CategoryService {
 
     List<Category> categories = new ArrayList<>();
 
-    public String addCategory(Category category){
+    public String createCategory(Category category){
         categories.add(category);
         return "Category Added successfully!";
     }

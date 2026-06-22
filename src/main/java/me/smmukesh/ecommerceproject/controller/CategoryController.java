@@ -4,7 +4,6 @@ import me.smmukesh.ecommerceproject.model.Category;
 import me.smmukesh.ecommerceproject.service.CategoryService;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -24,7 +23,7 @@ public class CategoryController {
 
     @PostMapping("public/category")
     public String addCategory(@RequestBody Category category){
-        return categorieService.addCategory(category);
+        return categorieService.createCategory(category);
     }
 
 }
