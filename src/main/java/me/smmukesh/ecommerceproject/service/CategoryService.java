@@ -1,11 +1,10 @@
 package me.smmukesh.ecommerceproject.service;
 
+import me.smmukesh.ecommerceproject.exception.ResourceNotFoundException;
 import me.smmukesh.ecommerceproject.model.Category;
 import me.smmukesh.ecommerceproject.repository.CategoryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -30,16 +29,15 @@ public class CategoryService {
 
     public void updateCategory(Category updatedCategory,Long categoryId){
         Category Optionalcategory = categoryRepository.findById(categoryId).orElseThrow(()
-                -> new ResponseStatusException(HttpStatus.NOT_FOUND,"Category Not Found"));
+                -> new ResourceNotFoundException("Category", "Catgory Id", categoryId));
         Optionalcategory.setCategoryName(updatedCategory.getCategoryName());
         categoryRepository.save(Optionalcategory);
     }
 
-    public boolean deleteCategory(Long categoryId){
-        if(categoryRepository.existsById(categoryId)){
-            categoryRepository.deleteById(categoryId);
-            return true;
-        }
-        return false;
+    public String deleteCategory(Long categoryId){
+        Category category = categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new ResourceNotFoundException("Category", "Catgory Id", categoryId));
+        categoryRepository.save(category);
+        return "Category Updated Successfully!";
     }
 }
