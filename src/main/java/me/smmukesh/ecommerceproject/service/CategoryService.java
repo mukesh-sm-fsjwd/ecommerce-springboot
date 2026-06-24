@@ -1,43 +1,45 @@
 package me.smmukesh.ecommerceproject.service;
 
 import me.smmukesh.ecommerceproject.model.Category;
+import me.smmukesh.ecommerceproject.repository.CategoryRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class CategoryService {
-//    private CategoryRepository categoryRepository;
-//
-//    @Autowired
-//    public CategoryService(CategoryRepository categoryRepository){
-//        this.categoryRepository = categoryRepository;
-//    }
+    private CategoryRepository categoryRepository;
 
-    List<Category> categories = new ArrayList<>();
-    private Long Id = 1L;
+    @Autowired
+    public CategoryService(CategoryRepository categoryRepository){
+        this.categoryRepository = categoryRepository;
+    }
+
 
     public String createCategory(Category category){
-        category.setCategoryId(Id++);
-        categories.add(category);
+        categoryRepository.save(category);
         return "Category Added successfully!";
     }
 
     public List<Category> getAllCategories(){
-        return categories;
+        return categoryRepository.findAll();
     }
 
-    public boolean deleteCategory(int categoryId){
-        boolean isDone = false;
-        Optional<Category> category = categories.stream()
-                .filter(c -> c.getCategoryId() ==  categoryId)
-                .findFirst();
-        if(category.isPresent()){
-            isDone = true;
-            categories.remove(category.get());
+    public void updateCategory(Category updatedCategory,Long categoryId){
+        Category Optionalcategory = categoryRepository.findById(categoryId).orElseThrow(()
+                -> new ResponseStatusException(HttpStatus.NOT_FOUND,"Category Not Found"));
+        Optionalcategory.setCategoryName(updatedCategory.getCategoryName());
+        categoryRepository.save(Optionalcategory);
+    }
+
+    public boolean deleteCategory(Long categoryId){
+        if(categoryRepository.existsById(categoryId)){
+            categoryRepository.deleteById(categoryId);
+            return true;
         }
-        return isDone;
+        return false;
     }
 }
