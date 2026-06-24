@@ -57,7 +57,6 @@ public class CategoryService {
 
         CategoryResponse categoryResponse = new CategoryResponse();
         categoryResponse.setContent(categoryRequests);
-
         return categoryResponse;
     }
 
