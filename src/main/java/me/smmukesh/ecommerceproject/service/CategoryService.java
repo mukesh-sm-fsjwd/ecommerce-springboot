@@ -25,13 +25,24 @@ public class CategoryService {
         this.modelMapper = modelMapper;
     }
 
-    public String createCategory(Category category){
-        Optional<Category> savedCategory = categoryRepository.findByCategoryName(category.getCategoryName());
-        if(savedCategory.isPresent()){
-            throw new APIException("Category with the Name : "+category.getCategoryName()+" is already Exists.");
+    /**
+     *
+     * @param categoryRequest
+     * @return CategoryRequest,
+     * The Reason why we're using CategoryRequest return type is , we're
+     * returing the same data because we're dealing with the same entites
+     * rather than paginated reponses.
+     */
+    public CategoryRequest createCategory(CategoryRequest categoryRequest){
+        Category category = modelMapper.map(categoryRequest,Category.class);
+        Optional<Category> categoryFromDB = categoryRepository.findByCategoryName(category.getCategoryName());
+
+        if(categoryFromDB.isPresent()){
+            throw new APIException("Category with the Name : "+categoryRequest.getCategoryName()+" is already Exists.");
         }
-        categoryRepository.save(category);
-        return "Category Added successfully!";
+
+        Category savedCategory = categoryRepository.save(category);
+        return modelMapper.map(savedCategory,CategoryRequest.class);
     }
 
     public CategoryResponse getAllCategories(){
@@ -50,18 +61,24 @@ public class CategoryService {
         return categoryResponse;
     }
 
-    public String updateCategory(Category updatedCategory,Long categoryId){
+    public CategoryRequest updateCategory(CategoryRequest updatedCategoryRequest,Long categoryId){
+        Category category = modelMapper.map(updatedCategoryRequest,Category.class);
+
         Category Optionalcategory = categoryRepository.findById(categoryId).orElseThrow(()
                 -> new ResourceNotFoundException("Category", "Catgory Id", categoryId));
-        Optionalcategory.setCategoryName(updatedCategory.getCategoryName());
-        categoryRepository.save(Optionalcategory);
-        return "Category Updated !.";
+        Optionalcategory.setCategoryName(category.getCategoryName());
+
+        Category savedCategory = categoryRepository.save(Optionalcategory);
+
+        return modelMapper.map(savedCategory,CategoryRequest.class);
     }
 
-    public String deleteCategory(Long categoryId){
+    public CategoryRequest deleteCategory(Long categoryId){
+
         Category category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new ResourceNotFoundException("Category", "Catgory Id", categoryId));
-        categoryRepository.save(category);
-        return "Category Updated Successfully!";
+        categoryRepository.deleteById(categoryId);
+
+        return modelMapper.map(category,CategoryRequest.class);
     }
 }
