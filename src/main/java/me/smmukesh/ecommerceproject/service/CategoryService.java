@@ -8,6 +8,9 @@ import me.smmukesh.ecommerceproject.model.Category;
 import me.smmukesh.ecommerceproject.repository.CategoryRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -45,8 +48,12 @@ public class CategoryService {
         return modelMapper.map(savedCategory,CategoryRequest.class);
     }
 
-    public CategoryResponse getAllCategories(){
-        List<Category> allCategories = categoryRepository.findAll();
+    public CategoryResponse getAllCategories(Integer pageNumber,Integer pageSize){
+
+        Pageable pageDetails = PageRequest.of(pageNumber,pageSize);
+        Page<Category> categoryPage = categoryRepository.findAll(pageDetails);
+        List<Category> allCategories = categoryPage.getContent();
+
         if(allCategories.isEmpty()){
             throw new APIException("No Categories Added.");
         }
