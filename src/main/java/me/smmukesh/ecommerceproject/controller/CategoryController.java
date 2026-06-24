@@ -1,14 +1,13 @@
 package me.smmukesh.ecommerceproject.controller;
 
 import jakarta.validation.Valid;
+import me.smmukesh.ecommerceproject.dto.request.CategoryRequest;
 import me.smmukesh.ecommerceproject.dto.response.CategoryResponse;
-import me.smmukesh.ecommerceproject.model.Category;
 import me.smmukesh.ecommerceproject.service.CategoryService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 
 @RestController
 @RequestMapping("api")
@@ -27,23 +26,23 @@ public class CategoryController {
     }
 
     @PostMapping("public/category")
-    public ResponseEntity<String> addCategory(@Valid @RequestBody Category category){
-        String addedCategory = categorieService.createCategory(category);
+    public ResponseEntity<CategoryRequest> addCategory(@Valid @RequestBody CategoryRequest categoryRequest){
+        CategoryRequest addedCategory = categorieService.createCategory(categoryRequest);
         return new ResponseEntity<>(addedCategory,HttpStatus.CREATED);
     }
 
     @PutMapping("public/categories/{categoryId}")
-    public ResponseEntity<String> updateCategory(@Valid @RequestBody Category category,@PathVariable Long categoryId){
-        String updatedCategory = categorieService.updateCategory(category,categoryId);
+    public ResponseEntity<CategoryRequest> updateCategory(@Valid @RequestBody CategoryRequest categoryRequest,@PathVariable Long categoryId){
+        CategoryRequest updatedCategory = categorieService.updateCategory(categoryRequest,categoryId);
         return ResponseEntity.status(HttpStatus.OK)
                 .body(updatedCategory);
     }
 
     @DeleteMapping("admin/categories/{id}")
     public ResponseEntity<String> deleteCategory(@PathVariable long id){
-       String deletedCategory = categorieService.deleteCategory(id);
+        CategoryRequest deletedCategory = categorieService.deleteCategory(id);
        return ResponseEntity.status(HttpStatus.OK)
-               .body(deletedCategory);
+               .body("Category "+deletedCategory.getCategoryName()+"was Deleted Successfully");
     }
 
 }
