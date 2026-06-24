@@ -44,14 +44,9 @@ public class CategoryController {
 
     @DeleteMapping("admin/categories/{id}")
     public ResponseEntity<String> deleteCategory(@PathVariable long id){
-       boolean isDeleted = categorieService.deleteCategory(id);
-       if(isDeleted){
-           return ResponseEntity.status(HttpStatus.OK)
-                   .body("Category Deletion Successful!");
-       }else{
-           return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                   .body("Category Not Found!");
-       }
+       String deletedCategory = categorieService.deleteCategory(id);
+       return ResponseEntity.status(HttpStatus.OK)
+               .body(deletedCategory);
     }
 
 }
