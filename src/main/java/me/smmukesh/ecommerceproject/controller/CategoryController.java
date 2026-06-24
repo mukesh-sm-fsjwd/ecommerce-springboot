@@ -6,7 +6,6 @@ import me.smmukesh.ecommerceproject.service.CategoryService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -33,13 +32,10 @@ public class CategoryController {
     }
 
     @PutMapping("public/categories/{categoryId}")
-    public ResponseEntity<String> updateCategory(@RequestBody Category category,@PathVariable Long categoryId){
-        try{
-            categorieService.updateCategory(category,categoryId);
-            return new ResponseEntity<>("Category Id : "+categoryId+"  Updated Successfully.",HttpStatus.OK);
-        }catch (ResponseStatusException e){
-            return new ResponseEntity<>("Cannot Able to Update.\nThe Reason : "+e.getReason(),HttpStatus.NOT_FOUND);
-        }
+    public ResponseEntity<String> updateCategory(@Valid @RequestBody Category category,@PathVariable Long categoryId){
+        String updatedCategory = categorieService.updateCategory(category,categoryId);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(updatedCategory);
     }
 
     @DeleteMapping("admin/categories/{id}")
