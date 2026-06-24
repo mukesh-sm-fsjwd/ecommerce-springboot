@@ -1,5 +1,6 @@
 package me.smmukesh.ecommerceproject.controller;
 
+import jakarta.validation.Valid;
 import me.smmukesh.ecommerceproject.model.Category;
 import me.smmukesh.ecommerceproject.service.CategoryService;
 import org.springframework.http.HttpStatus;
@@ -26,7 +27,7 @@ public class CategoryController {
     }
 
     @PostMapping("public/category")
-    public ResponseEntity<String> addCategory(@RequestBody Category category){
+    public ResponseEntity<String> addCategory(@Valid @RequestBody Category category){
         String addedCategory = categorieService.createCategory(category);
         return new ResponseEntity<>(addedCategory,HttpStatus.CREATED);
     }
