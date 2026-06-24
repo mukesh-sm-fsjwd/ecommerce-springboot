@@ -1,9 +1,12 @@
 package me.smmukesh.ecommerceproject.service;
 
+import me.smmukesh.ecommerceproject.dto.request.CategoryRequest;
+import me.smmukesh.ecommerceproject.dto.response.CategoryResponse;
 import me.smmukesh.ecommerceproject.exception.APIException;
 import me.smmukesh.ecommerceproject.exception.ResourceNotFoundException;
 import me.smmukesh.ecommerceproject.model.Category;
 import me.smmukesh.ecommerceproject.repository.CategoryRepository;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -12,13 +15,15 @@ import java.util.Optional;
 
 @Service
 public class CategoryService {
+
     private CategoryRepository categoryRepository;
+    private ModelMapper modelMapper;
 
     @Autowired
-    public CategoryService(CategoryRepository categoryRepository){
+    public CategoryService(CategoryRepository categoryRepository,ModelMapper modelMapper){
         this.categoryRepository = categoryRepository;
+        this.modelMapper = modelMapper;
     }
-
 
     public String createCategory(Category category){
         Optional<Category> savedCategory = categoryRepository.findByCategoryName(category.getCategoryName());
@@ -29,12 +34,20 @@ public class CategoryService {
         return "Category Added successfully!";
     }
 
-    public List<Category> getAllCategories(){
+    public CategoryResponse getAllCategories(){
         List<Category> allCategories = categoryRepository.findAll();
         if(allCategories.isEmpty()){
             throw new APIException("No Categories Added.");
         }
-        return allCategories;
+
+        List<CategoryRequest> categoryRequests = allCategories.stream()
+                .map(category -> modelMapper.map(category,CategoryRequest.class))
+                .toList();
+
+        CategoryResponse categoryResponse = new CategoryResponse();
+        categoryResponse.setContent(categoryRequests);
+
+        return categoryResponse;
     }
 
     public String updateCategory(Category updatedCategory,Long categoryId){

@@ -1,6 +1,7 @@
 package me.smmukesh.ecommerceproject.controller;
 
 import jakarta.validation.Valid;
+import me.smmukesh.ecommerceproject.dto.response.CategoryResponse;
 import me.smmukesh.ecommerceproject.model.Category;
 import me.smmukesh.ecommerceproject.service.CategoryService;
 import org.springframework.http.HttpStatus;
@@ -20,8 +21,8 @@ public class CategoryController {
     }
 
     @GetMapping("public/categories")
-    public ResponseEntity<List<Category>> getCategories(){
-        List<Category> allCategories = categorieService.getAllCategories();
+    public ResponseEntity<CategoryResponse> getCategories(){
+        CategoryResponse allCategories = categorieService.getAllCategories();
         return new ResponseEntity<>(allCategories,HttpStatus.OK);
     }
 
