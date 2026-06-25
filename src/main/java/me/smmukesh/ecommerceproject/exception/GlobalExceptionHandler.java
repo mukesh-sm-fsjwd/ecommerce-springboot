@@ -1,5 +1,6 @@
 package me.smmukesh.ecommerceproject.exception;
 
+import me.smmukesh.ecommerceproject.dto.response.APIResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -26,17 +27,27 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<String> myResourceNotFoundException(ResourceNotFoundException e){
+    public ResponseEntity<APIResponse> myResourceNotFoundException(ResourceNotFoundException e){
         String message = e.getMessage();
+
+        APIResponse apiResponse = new APIResponse();
+        apiResponse.setMessage(message);
+        apiResponse.setStatus(false);
+
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(message);
+                .body(apiResponse);
     }
 
     @ExceptionHandler(APIException.class)
-    public ResponseEntity<String> myAPIException(APIException e){
+    public ResponseEntity<APIResponse> myAPIException(APIException e){
         String message = e.getMessage();
+
+        APIResponse apiResponse = new APIResponse();
+        apiResponse.setMessage(message);
+        apiResponse.setStatus(false);
+
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(message);
+                .body(apiResponse);
     }
 
 }
