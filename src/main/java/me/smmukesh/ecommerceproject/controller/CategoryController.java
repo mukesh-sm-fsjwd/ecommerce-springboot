@@ -1,6 +1,7 @@
 package me.smmukesh.ecommerceproject.controller;
 
 import jakarta.validation.Valid;
+import me.smmukesh.ecommerceproject.config.AppConstants;
 import me.smmukesh.ecommerceproject.dto.request.CategoryRequest;
 import me.smmukesh.ecommerceproject.dto.response.CategoryResponse;
 import me.smmukesh.ecommerceproject.service.CategoryService;
@@ -21,8 +22,8 @@ public class CategoryController {
 
     @GetMapping("public/categories")
     public ResponseEntity<CategoryResponse> getCategories(
-            @RequestParam(name = "pageNumber" , defaultValue = "0") Integer pageNumber,
-            @RequestParam(name = "pageSize" , defaultValue = "5") Integer pageSize
+            @RequestParam(name = "pageNumber" , defaultValue = AppConstants.PAGE_NUMBER , required = false) Integer pageNumber,
+            @RequestParam(name = "pageSize" , defaultValue = AppConstants.PAGE_SIZE , required = false) Integer pageSize
     ){
         CategoryResponse allCategories = categorieService.getAllCategories(pageNumber,pageSize);
         return new ResponseEntity<>(allCategories,HttpStatus.OK);
