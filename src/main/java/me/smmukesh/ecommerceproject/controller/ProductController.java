@@ -1,6 +1,7 @@
 package me.smmukesh.ecommerceproject.controller;
 
 import me.smmukesh.ecommerceproject.dto.request.ProductRequest;
+import me.smmukesh.ecommerceproject.dto.response.ProductResponse;
 import me.smmukesh.ecommerceproject.model.Product;
 import me.smmukesh.ecommerceproject.service.CategoryService;
 import me.smmukesh.ecommerceproject.service.ProductService;
@@ -23,5 +24,12 @@ public class ProductController {
     public ResponseEntity<ProductRequest> addProduct(@RequestBody Product product,@PathVariable Long categoryId){
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(productService.addProduct(product,categoryId));
+    }
+
+    @GetMapping("public/products")
+    public ResponseEntity<ProductResponse> getAllProducts(){
+        ProductResponse productResponse = productService.getAllProducts();
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(productResponse);
     }
 }

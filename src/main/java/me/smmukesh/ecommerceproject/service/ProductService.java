@@ -1,13 +1,17 @@
 package me.smmukesh.ecommerceproject.service;
 
 import me.smmukesh.ecommerceproject.dto.request.ProductRequest;
+import me.smmukesh.ecommerceproject.dto.response.ProductResponse;
 import me.smmukesh.ecommerceproject.exception.ResourceNotFoundException;
 import me.smmukesh.ecommerceproject.model.Category;
 import me.smmukesh.ecommerceproject.model.Product;
 import me.smmukesh.ecommerceproject.repository.CategoryRepository;
 import me.smmukesh.ecommerceproject.repository.ProductRepository;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class ProductService {
@@ -23,6 +27,16 @@ public class ProductService {
         this.productRepository = productRepository;
         this.categoryRepository = categoryRepository;
         this.modelMapper = modelMapper;
+    }
+
+    public ProductResponse getAllProducts(){
+        List<Product> allProducts = productRepository.findAll();
+        List<ProductRequest> productRequests = allProducts.stream()
+                .map(product -> modelMapper.map(product,ProductRequest.class))
+                .toList();
+        ProductResponse productResponse = new ProductResponse();
+        productResponse.setContent(productRequests);
+        return productResponse;
     }
 
     public ProductRequest addProduct(Product product,Long categoryId){
