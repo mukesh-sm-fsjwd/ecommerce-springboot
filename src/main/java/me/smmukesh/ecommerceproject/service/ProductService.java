@@ -1,0 +1,38 @@
+package me.smmukesh.ecommerceproject.service;
+
+import me.smmukesh.ecommerceproject.dto.request.ProductRequest;
+import me.smmukesh.ecommerceproject.exception.ResourceNotFoundException;
+import me.smmukesh.ecommerceproject.model.Category;
+import me.smmukesh.ecommerceproject.model.Product;
+import me.smmukesh.ecommerceproject.repository.CategoryRepository;
+import me.smmukesh.ecommerceproject.repository.ProductRepository;
+import org.modelmapper.ModelMapper;
+import org.springframework.stereotype.Service;
+
+@Service
+public class ProductService {
+
+    private final ProductRepository productRepository;
+    private final CategoryRepository categoryRepository;
+
+    private ModelMapper modelMapper;
+
+    public ProductService(ProductRepository productRepository,
+                          CategoryRepository categoryRepository,
+                          ModelMapper modelMapper){
+        this.productRepository = productRepository;
+        this.categoryRepository = categoryRepository;
+        this.modelMapper = modelMapper;
+    }
+
+    public ProductRequest addProduct(Product product,Long categoryId){
+        Category category = categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new ResourceNotFoundException("Category", "CategoryId", categoryId));
+        product.setCategory(category);
+        product.setImage("default.png");
+        double specialPrice = product.getPrice() - ((product.getDiscount() * 0.01) * product.getPrice());
+        product.setSpecialPrice(specialPrice);
+        Product savedProduct = productRepository.save(product);
+        return modelMapper.map(savedProduct,ProductRequest.class);
+    }
+}
