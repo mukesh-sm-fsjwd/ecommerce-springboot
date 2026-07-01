@@ -8,7 +8,6 @@ import me.smmukesh.ecommerceproject.model.Product;
 import me.smmukesh.ecommerceproject.repository.CategoryRepository;
 import me.smmukesh.ecommerceproject.repository.ProductRepository;
 import org.modelmapper.ModelMapper;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -48,5 +47,18 @@ public class ProductService {
         product.setSpecialPrice(specialPrice);
         Product savedProduct = productRepository.save(product);
         return modelMapper.map(savedProduct,ProductRequest.class);
+    }
+
+    public ProductResponse searchByCategory(Long categoryId){
+        Category category = categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new ResourceNotFoundException("Category","CategoryId",categoryId));
+
+        List<Product> products = productRepository.findByCategoryOrderByPriceAsc(category);
+        List<ProductRequest> productRequests = products.stream()
+                .map(product -> modelMapper.map(product,ProductRequest.class))
+                .toList();
+        ProductResponse productResponse = new ProductResponse();
+        productResponse.setContent(productRequests);
+        return productResponse;
     }
 }
