@@ -61,4 +61,14 @@ public class ProductService {
         productResponse.setContent(productRequests);
         return productResponse;
     }
+
+    public ProductResponse searchByKeyword(String keyword) {
+        List<Product> products = productRepository.getProductByProductNameContainingIgnoreCase(keyword);
+        List<ProductRequest> productRequests = products.stream()
+                .map(product -> modelMapper.map(product, ProductRequest.class))
+                .toList();
+        ProductResponse productResponse = new ProductResponse();
+        productResponse.setContent(productRequests);
+        return productResponse;
+    }
 }
