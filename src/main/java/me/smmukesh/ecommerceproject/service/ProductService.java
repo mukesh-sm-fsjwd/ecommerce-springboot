@@ -71,4 +71,23 @@ public class ProductService {
         productResponse.setContent(productRequests);
         return productResponse;
     }
+
+    public ProductRequest updateProduct(Product product,long productId) {
+        //1. Get the existing product from db
+        Product productFromDb = productRepository.findById(productId)
+                .orElseThrow(() -> new ResourceNotFoundException("Product","ProductId",productId));
+
+        //2. update the product
+        productFromDb.setProductName(product.getProductName());
+        productFromDb.setDescription(product.getDescription());
+        productFromDb.setQuantity(product.getQuantity());
+        productFromDb.setPrice(product.getPrice());
+        productFromDb.setDiscount(product.getDiscount());
+        productFromDb.setSpecialPrice(product.getSpecialPrice());
+
+        //3. save to db
+        productRepository.save(productFromDb);
+
+        return modelMapper.map(productFromDb,ProductRequest.class);
+    }
 }
