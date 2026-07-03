@@ -90,4 +90,11 @@ public class ProductService {
 
         return modelMapper.map(productFromDb,ProductRequest.class);
     }
+
+    public ProductRequest deleteProduct(long productId) {
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new ResourceNotFoundException("Product","ProductId",productId));
+        productRepository.deleteById(productId);
+        return modelMapper.map(product,ProductRequest.class);
+    }
 }
