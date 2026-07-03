@@ -38,9 +38,10 @@ public class ProductService {
         return productResponse;
     }
 
-    public ProductRequest addProduct(Product product,Long categoryId){
+    public ProductRequest addProduct(ProductRequest productRequest,Long categoryId){
         Category category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new ResourceNotFoundException("Category", "CategoryId", categoryId));
+        Product product = modelMapper.map(productRequest,Product.class);
         product.setCategory(category);
         product.setImage("default.png");
         double specialPrice = product.getPrice() - ((product.getDiscount() * 0.01) * product.getPrice());
@@ -72,12 +73,13 @@ public class ProductService {
         return productResponse;
     }
 
-    public ProductRequest updateProduct(Product product,long productId) {
+    public ProductRequest updateProduct(ProductRequest productRequest,long productId) {
         //1. Get the existing product from db
         Product productFromDb = productRepository.findById(productId)
                 .orElseThrow(() -> new ResourceNotFoundException("Product","ProductId",productId));
 
         //2. update the product
+        Product product = modelMapper.map(productRequest,Product.class);
         productFromDb.setProductName(product.getProductName());
         productFromDb.setDescription(product.getDescription());
         productFromDb.setQuantity(product.getQuantity());
