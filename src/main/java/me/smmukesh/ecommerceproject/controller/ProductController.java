@@ -2,12 +2,14 @@ package me.smmukesh.ecommerceproject.controller;
 
 import me.smmukesh.ecommerceproject.dto.request.ProductRequest;
 import me.smmukesh.ecommerceproject.dto.response.ProductResponse;
-import me.smmukesh.ecommerceproject.model.Product;
 import me.smmukesh.ecommerceproject.service.CategoryService;
 import me.smmukesh.ecommerceproject.service.ProductService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 
 @RestController
 @RequestMapping("api")
@@ -59,5 +61,14 @@ public class ProductController {
        ProductRequest product = productService.deleteProduct(productId);
         return ResponseEntity.status(HttpStatus.OK)
                 .body("Product '"+product.getProductName()+"' was Deleted Successfully");
+    }
+
+    @PutMapping("admin/products/{productId}/image")
+    public ResponseEntity<ProductRequest> updateProductImage(
+            @PathVariable long productId,
+            @RequestParam("image") MultipartFile image) throws IOException {
+        ProductRequest productRequest = productService.updateProductImage(productId,image);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(productRequest);
     }
 }
