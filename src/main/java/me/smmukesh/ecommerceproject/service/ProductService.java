@@ -8,29 +8,31 @@ import me.smmukesh.ecommerceproject.model.Product;
 import me.smmukesh.ecommerceproject.repository.CategoryRepository;
 import me.smmukesh.ecommerceproject.repository.ProductRepository;
 import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.List;
-import java.util.UUID;
 
 @Service
 public class ProductService {
 
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
+    private final FileService fileService;
+    private final ModelMapper modelMapper;
 
-    private ModelMapper modelMapper;
+    @Value("${project.image}")
+    String path = "images/";
 
     public ProductService(ProductRepository productRepository,
                           CategoryRepository categoryRepository,
+                          FileService fileService,
                           ModelMapper modelMapper){
         this.productRepository = productRepository;
         this.categoryRepository = categoryRepository;
+        this.fileService = fileService;
         this.modelMapper = modelMapper;
     }
 
@@ -112,8 +114,8 @@ public class ProductService {
                 .orElseThrow(() -> new ResourceNotFoundException("Product","ProductId",productId));
         // 2. Upload the image to the server.
         // 3. Get the file name from the image.
-        String path = "images/";
-        String fileName = uploadImage(path,image);
+
+        String fileName = fileService.uploadImage(path,image);
 
         // 4. Update the file name to the product.
         product.setImage(fileName);
@@ -124,33 +126,4 @@ public class ProductService {
         // 6. Return the ProductRequest.
         return modelMapper.map(savedProduct,ProductRequest.class);
     }
-
-    private String uploadImage(String path, MultipartFile file) throws IOException {
-
-        // 1. File name of the original file;
-        String originalFileName = file.getOriginalFilename();
-
-        // 2. Generate a unique file name (to avoid name conflict)
-        String fileName = createUniqueId(originalFileName);
-        String filePath = path + File.separator + fileName;
-
-        // 3. Check if the path exists and creates.
-        File fileDir = new File(path);
-        if(!fileDir.exists()){
-            fileDir.mkdir();
-        }
-
-        // 4. upload the file to the server.
-        Files.copy(file.getInputStream(), Path.of(filePath));
-
-        // 5. Return the file name.
-        return fileName;
-    }
-
-    private String createUniqueId(String originalFileName) {
-        String id = UUID.randomUUID().toString();
-        return id.concat(originalFileName.substring(originalFileName.lastIndexOf(".")));
-    }
-
-
 }
