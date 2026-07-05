@@ -1,5 +1,6 @@
 package me.smmukesh.ecommerceproject.controller;
 
+import jakarta.validation.Valid;
 import me.smmukesh.ecommerceproject.dto.request.ProductRequest;
 import me.smmukesh.ecommerceproject.dto.response.ProductResponse;
 import me.smmukesh.ecommerceproject.service.CategoryService;
@@ -23,7 +24,7 @@ public class ProductController {
     }
 
     @PostMapping("admin/categories/{categoryId}/product")
-    public ResponseEntity<ProductRequest> addProduct(@RequestBody ProductRequest productRequest,@PathVariable Long categoryId){
+    public ResponseEntity<ProductRequest> addProduct(@Valid @RequestBody ProductRequest productRequest, @PathVariable Long categoryId){
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(productService.addProduct(productRequest,categoryId));
     }
@@ -50,7 +51,7 @@ public class ProductController {
     }
 
     @PutMapping("admin/products/{productId}")
-    public ResponseEntity<ProductRequest> updateProduct(@RequestBody ProductRequest productRequest,@PathVariable long productId){
+    public ResponseEntity<ProductRequest> updateProduct(@Valid @RequestBody ProductRequest productRequest,@PathVariable long productId){
         ProductRequest savedProductRequest = productService.updateProduct(productRequest,productId);
         return ResponseEntity.status(HttpStatus.OK)
                 .body(savedProductRequest);
