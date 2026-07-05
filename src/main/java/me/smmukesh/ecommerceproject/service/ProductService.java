@@ -2,6 +2,7 @@ package me.smmukesh.ecommerceproject.service;
 
 import me.smmukesh.ecommerceproject.dto.request.ProductRequest;
 import me.smmukesh.ecommerceproject.dto.response.ProductResponse;
+import me.smmukesh.ecommerceproject.exception.APIException;
 import me.smmukesh.ecommerceproject.exception.ResourceNotFoundException;
 import me.smmukesh.ecommerceproject.model.Category;
 import me.smmukesh.ecommerceproject.model.Product;
@@ -38,6 +39,9 @@ public class ProductService {
 
     public ProductResponse getAllProducts(){
         List<Product> allProducts = productRepository.findAll();
+        if(allProducts.isEmpty()){
+            throw new APIException("No Products Added.");
+        }
         List<ProductRequest> productRequests = allProducts.stream()
                 .map(product -> modelMapper.map(product,ProductRequest.class))
                 .toList();
@@ -49,19 +53,32 @@ public class ProductService {
     public ProductRequest addProduct(ProductRequest productRequest,Long categoryId){
         Category category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new ResourceNotFoundException("Category", "CategoryId", categoryId));
-        Product product = modelMapper.map(productRequest,Product.class);
-        product.setCategory(category);
-        product.setImage("default.png");
-        double specialPrice = product.getPrice() - ((product.getDiscount() * 0.01) * product.getPrice());
-        product.setSpecialPrice(specialPrice);
-        Product savedProduct = productRepository.save(product);
-        return modelMapper.map(savedProduct,ProductRequest.class);
+
+        boolean isProductNotPresent = true;
+        List<Product> products = category.getProducts();
+        for(Product product : products){
+            if(product.getProductName().equals(productRequest.getProductName())){
+                isProductNotPresent = false;
+                break;
+            }
+        }
+
+        if(isProductNotPresent){
+            Product product = modelMapper.map(productRequest,Product.class);
+            product.setCategory(category);
+            product.setImage("default.png");
+            double specialPrice = product.getPrice() - ((product.getDiscount() * 0.01) * product.getPrice());
+            product.setSpecialPrice(specialPrice);
+            Product savedProduct = productRepository.save(product);
+            return modelMapper.map(savedProduct,ProductRequest.class);
+        }else{
+            throw  new APIException("Product with the name : "+productRequest.getProductName()+" is already present.");
+        }
     }
 
     public ProductResponse searchByCategory(Long categoryId){
         Category category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new ResourceNotFoundException("Category","CategoryId",categoryId));
-
         List<Product> products = productRepository.findByCategoryOrderByPriceAsc(category);
         List<ProductRequest> productRequests = products.stream()
                 .map(product -> modelMapper.map(product,ProductRequest.class))
