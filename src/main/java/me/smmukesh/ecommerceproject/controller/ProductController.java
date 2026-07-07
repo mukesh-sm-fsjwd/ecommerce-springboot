@@ -16,8 +16,8 @@ import java.io.IOException;
 @RestController
 @RequestMapping("api")
 public class ProductController {
-    private ProductService productService;
-    private CategoryService categoryService;
+    private final ProductService productService;
+    private final CategoryService categoryService;
 
     public ProductController(ProductService productService, CategoryService categoryService){
         this.productService = productService;

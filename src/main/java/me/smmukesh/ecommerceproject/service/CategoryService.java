@@ -20,8 +20,8 @@ import java.util.Optional;
 @Service
 public class CategoryService {
 
-    private CategoryRepository categoryRepository;
-    private ModelMapper modelMapper;
+    private final CategoryRepository categoryRepository;
+    private final ModelMapper modelMapper;
 
     @Autowired
     public CategoryService(CategoryRepository categoryRepository,ModelMapper modelMapper){
