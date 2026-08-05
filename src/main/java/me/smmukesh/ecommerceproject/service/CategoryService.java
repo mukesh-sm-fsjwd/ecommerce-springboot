@@ -31,7 +31,7 @@ public class CategoryService {
 
     /**
      *
-     * @param categoryRequest
+     * @param categoryRequest categoryRequest
      * @return CategoryRequest,
      * The Reason why we're using CategoryRequest return type is , we're
      * returing the same data because we're dealing with the same entites
