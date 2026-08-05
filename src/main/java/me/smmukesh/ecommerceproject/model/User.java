@@ -21,6 +21,7 @@ import java.util.Set;
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "user_id")
     private Long userId;
 
     @Column(name = "username",nullable = false)
@@ -52,4 +53,9 @@ public class User {
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<Role> roles = new HashSet<>();
+
+    @OneToMany(mappedBy = "user",
+            cascade = {CascadeType.PERSIST,CascadeType.MERGE},
+            orphanRemoval = true)
+    private Set<Product> products = new HashSet<>();
 }
