@@ -15,7 +15,9 @@ import java.util.Set;
 @Data
 @Entity
 @NoArgsConstructor
-@Table(name = "users")
+@Table(name = "users",uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"username","email"})
+})
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
