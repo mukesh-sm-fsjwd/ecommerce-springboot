@@ -1,4 +1,4 @@
-package me.smmukesh.ecommerceproject.security.jwt;
+package me.smmukesh.ecommerceproject.security.request;
 
 import lombok.Getter;
 import lombok.Setter;
