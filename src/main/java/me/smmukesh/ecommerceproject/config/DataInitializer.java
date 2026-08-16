@@ -48,7 +48,7 @@ public class DataInitializer {
                 userRepository.save(user1);
             }
 
-            if (!userRepository.existsByUserName("seller1")) {
+            if (!userRepository.existsByUserName("seller")) {
                 User seller1 = new User("seller", "seller@example.com", passwordEncoder.encode("seller"));
                 userRepository.save(seller1);
             }
@@ -59,12 +59,12 @@ public class DataInitializer {
             }
 
             // Update roles for existing users
-            userRepository.findByUserName("user1").ifPresent(user -> {
+            userRepository.findByUserName("user").ifPresent(user -> {
                 user.setRoles(userRoles);
                 userRepository.save(user);
             });
 
-            userRepository.findByUserName("seller1").ifPresent(seller -> {
+            userRepository.findByUserName("seller").ifPresent(seller -> {
                 seller.setRoles(sellerRoles);
                 userRepository.save(seller);
             });
