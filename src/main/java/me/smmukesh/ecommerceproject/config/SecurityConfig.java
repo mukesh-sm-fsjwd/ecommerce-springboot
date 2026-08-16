@@ -67,6 +67,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(request -> request
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/v3/api-docs/**").permitAll()
+                        .requestMatchers("/h2-console/**").permitAll()
                         .requestMatchers("/swagger-ui/**").permitAll()
                         .requestMatchers("/api/public/**").permitAll()
                         .requestMatchers("/api/admin/**").permitAll()
@@ -77,6 +78,9 @@ public class SecurityConfig {
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider())
+                .headers(headers -> headers.frameOptions(
+                        frameOptions -> frameOptions.sameOrigin()
+                ))
                 .addFilterBefore(authenticationJWTTokenFilter(), UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
