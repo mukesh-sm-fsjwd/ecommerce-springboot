@@ -32,7 +32,7 @@ public class JwtUtils {
     @Value("${jwt.signature}")
     private String secretKey;
 
-    @Value("${}")
+    @Value("${jwt.cookie.name}")
     private String jwtCookie;
 
     //1. Getting JWT from Header.
