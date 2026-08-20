@@ -13,7 +13,9 @@ import me.smmukesh.ecommerceproject.security.response.MessageResponse;
 import me.smmukesh.ecommerceproject.security.response.UserInfoResponse;
 import me.smmukesh.ecommerceproject.security.service.UserDetailsImpl;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -76,16 +78,16 @@ public class AuthController {
         }
         SecurityContextHolder.getContext().setAuthentication(authentication);
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-        String jwtToken = jwtUtils.generateTokenFromUsername(userDetails);
+        ResponseCookie jwtCookie = jwtUtils.generateJwtCookie(userDetails);
         List<String> roles = authentication.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .toList();
         UserInfoResponse loginResponse = new UserInfoResponse();
         loginResponse.setId(userDetails.getId());
         loginResponse.setUsername(userDetails.getUsername());
-        loginResponse.setJwtToken(jwtToken);
         loginResponse.setRoles(roles);
         return ResponseEntity.status(HttpStatus.OK)
+                .header(HttpHeaders.SET_COOKIE,jwtCookie.toString())
                 .body(loginResponse);
     }
 
