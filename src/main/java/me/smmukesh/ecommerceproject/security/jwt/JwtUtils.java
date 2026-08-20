@@ -6,13 +6,16 @@ import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import me.smmukesh.ecommerceproject.security.service.UserDetailsImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Component;
+import org.springframework.web.util.WebUtils;
 
 import javax.crypto.SecretKey;
 import java.util.Date;
@@ -29,19 +32,48 @@ public class JwtUtils {
     @Value("${jwt.signature}")
     private String secretKey;
 
+    @Value("${}")
+    private String jwtCookie;
+
     //1. Getting JWT from Header.
-    public String getJwtFromHeader(HttpServletRequest request){
-        String token = request.getHeader("Authorization");
-        if(token != null && token.startsWith("Bearer")){
-            return token.substring(7);
-        }else {
-            return null;
-        }
+//    public String getJwtFromHeader(HttpServletRequest request){
+//        String token = request.getHeader("Authorization");
+//        if(token != null && token.startsWith("Bearer")){
+//            return token.substring(7);
+//        }else {
+//            return null;
+//        }
+//    }
+
+    //1.1 Getting JWT from Cookie.
+    /*
+        Extracts JWT Token from the browser cookie using the
+        cookie name jwtCookie if the cookie exists, this will
+        return the jwt token else it will return null value.
+     */
+    public String getJwtFromCookie(HttpServletRequest request){
+        Cookie cookie = WebUtils.getCookie(request,jwtCookie);
+        return cookie != null ? cookie.getValue() : null;
+    }
+
+    /*
+        Create JWT Token from a logged-in username, and also
+        it will be packaged into a response cookie with some
+        expiration and also set the path for where the cookie
+        should be accessible.
+     */
+    public ResponseCookie generateJwtCookie(UserDetailsImpl userPrincipal){
+        String jwt = generateTokenFromUsername(userPrincipal.getUsername());
+        ResponseCookie responseCookie = ResponseCookie.from(jwtCookie,jwt)
+                .path("/api")
+                .maxAge(24 * 60 * 60)
+                .httpOnly(false)
+                .build();
+        return responseCookie;
     }
 
     //2. Generating Token from username.
-    public String generateTokenFromUsername(UserDetails userDetails){
-        String username = userDetails.getUsername();
+    public String generateTokenFromUsername(String username){
         return Jwts.builder()
                 .subject(username)
                 .issuedAt(new Date())
