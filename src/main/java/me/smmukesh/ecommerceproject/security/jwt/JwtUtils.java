@@ -72,6 +72,18 @@ public class JwtUtils {
         return responseCookie;
     }
 
+    /*
+        getCleanCookie method is just sign out the user in simple terms
+        they're just signing out or logout after logged in to our
+        application.
+     */
+    public ResponseCookie getCleanCookie(){
+        ResponseCookie responseCookie = ResponseCookie.from(jwtCookie, null)
+                .path("/api")
+                .build();
+        return responseCookie;
+    }
+
     //2. Generating Token from username.
     public String generateTokenFromUsername(String username){
         return Jwts.builder()
