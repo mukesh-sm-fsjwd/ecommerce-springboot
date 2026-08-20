@@ -24,10 +24,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
 
@@ -141,5 +138,28 @@ public class AuthController {
         userRepository.save(user);
         return ResponseEntity.status(HttpStatus.OK)
                 .body(new MessageResponse("User Registered Successfully"));
+    }
+
+    /*
+        Used to show the name of the user on the home page
+        when the user is logged in to our application.
+     */
+    @GetMapping("/username")
+    public String currentUserName(Authentication authentication){
+        return authentication != null ? authentication.getName() : "";
+    }
+
+    @GetMapping("/user")
+    public ResponseEntity<UserInfoResponse> getUserDetails(Authentication authentication){
+        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+        List<String> roles = authentication.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .toList();
+        UserInfoResponse loginResponse = new UserInfoResponse();
+        loginResponse.setId(userDetails.getId());
+        loginResponse.setUsername(userDetails.getUsername());
+        loginResponse.setRoles(roles);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(loginResponse);
     }
 }
