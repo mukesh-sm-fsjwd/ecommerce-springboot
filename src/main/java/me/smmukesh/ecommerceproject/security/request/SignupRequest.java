@@ -26,7 +26,7 @@ public class SignupRequest {
     @NotBlank
     @Size(min = 6, max = 30)
     @Pattern(
-            regexp = "^(?=.*[A-Z])(?=.*[@$!%*?&])[A-Za-z\\\\d@$!%*?&]{6,30}$",
+            regexp = "^(?=.*[A-Z])(?=.*[@$!%*?&])[A-Za-z0-9@$!%*?&]{6,30}$",
             message = "Password must be 6-30 characters long, include at least one uppercase letter and one special symbol."
     )
     private String password;
