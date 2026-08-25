@@ -1,5 +1,6 @@
 package me.smmukesh.ecommerceproject.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -18,60 +19,51 @@ import java.util.Set;
 @Setter
 @Entity
 @NoArgsConstructor
-@Table(name = "users",uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"username","email"})
+@Table(name = "users", uniqueConstraints = {
+                @UniqueConstraint(columnNames = { "username", "email" })
 })
 public class User {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "user_id")
-    private Long userId;
+        @Id
+        @GeneratedValue(strategy = GenerationType.IDENTITY)
+        @Column(name = "user_id")
+        private Long userId;
 
-    @Column(name = "username",nullable = false)
-    @NotBlank
-    @Size(max = 30)
-    private String userName;
+        @Column(name = "username", nullable = false)
+        @NotBlank
+        @Size(max = 30)
+        private String userName;
 
-    @NotBlank
-    @Email
-    @Size(max = 50)
-    private String email;
+        @NotBlank
+        @Email
+        @Size(max = 50)
+        private String email;
 
-    @NotBlank
-    @Size(max = 120)
-    private String password;
+        @NotBlank
+        @Size(max = 120)
+        private String password;
 
-    public User(String userName, String email, String password) {
-        this.userName = userName;
-        this.email = email;
-        this.password = password;
-    }
+        public User(String userName, String email, String password) {
+                this.userName = userName;
+                this.email = email;
+                this.password = password;
+        }
 
-    @Getter
-    @Setter
-    @ManyToMany(cascade =
-            {CascadeType.PERSIST,CascadeType.MERGE},
-            fetch = FetchType.EAGER)
-    @JoinTable(name = "user_role",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "role_id"))
-    private Set<Role> roles = new HashSet<>();
+        @Getter
+        @Setter
+        @ManyToMany(cascade = { CascadeType.PERSIST, CascadeType.MERGE }, fetch = FetchType.EAGER)
+        @JoinTable(name = "user_role", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
+        private Set<Role> roles = new HashSet<>();
 
-    @ManyToMany(cascade = {CascadeType.PERSIST,CascadeType.MERGE})
-    @JoinTable(name = "user_address",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "address_id"))
-    private List<Address> addresses = new ArrayList<>();
+        @ManyToMany(cascade = { CascadeType.PERSIST, CascadeType.MERGE })
+        @JoinTable(name = "user_address", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "address_id"))
+        private List<Address> addresses = new ArrayList<>();
 
-    @ToString.Exclude
-    @OneToOne(mappedBy = "user",
-            cascade = {CascadeType.MERGE,CascadeType.PERSIST},
-            orphanRemoval = true)
-    private Cart cart;
+        @JsonIgnore
+        @ToString.Exclude
+        @OneToOne(mappedBy = "user", cascade = { CascadeType.MERGE, CascadeType.PERSIST }, orphanRemoval = true)
+        private Cart cart;
 
-    @ToString.Exclude
-    @OneToMany(mappedBy = "user",
-            cascade = {CascadeType.PERSIST,CascadeType.MERGE},
-            orphanRemoval = true)
-    private Set<Product> products = new HashSet<>();
+        @ToString.Exclude
+        @OneToMany(mappedBy = "user", cascade = { CascadeType.PERSIST, CascadeType.MERGE }, orphanRemoval = true)
+        private Set<Product> products = new HashSet<>();
 }

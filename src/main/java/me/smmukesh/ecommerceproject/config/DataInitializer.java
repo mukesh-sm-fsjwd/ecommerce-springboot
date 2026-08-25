@@ -1,8 +1,6 @@
 package me.smmukesh.ecommerceproject.config;
 
-import me.smmukesh.ecommerceproject.model.AppRole;
-import me.smmukesh.ecommerceproject.model.Role;
-import me.smmukesh.ecommerceproject.model.User;
+import me.smmukesh.ecommerceproject.model.*;
 import me.smmukesh.ecommerceproject.repository.RoleRepository;
 import me.smmukesh.ecommerceproject.repository.UserRepository;
 import org.springframework.boot.CommandLineRunner;
@@ -43,7 +41,7 @@ public class DataInitializer {
 
 
             // Create users if not already present
-            if (!userRepository.existsByUserName("user1")) {
+            if (!userRepository.existsByUserName("user")) {
                 User user1 = new User("user", "user@example.com", passwordEncoder.encode("user"));
                 userRepository.save(user1);
             }

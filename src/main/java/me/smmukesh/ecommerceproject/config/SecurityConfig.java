@@ -35,31 +35,30 @@ public class SecurityConfig {
     }
 
     @Bean
-    public PasswordEncoder passwordEncoder(){
+    public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
     @Bean
-    public AuthTokenFilter authenticationJWTTokenFilter(){
+    public AuthTokenFilter authenticationJWTTokenFilter() {
         return new AuthTokenFilter();
     }
 
     @Bean
-    public DaoAuthenticationProvider authenticationProvider(){
-        DaoAuthenticationProvider authenticationProvider = new
-                DaoAuthenticationProvider(userDetailsService);
+    public DaoAuthenticationProvider authenticationProvider() {
+        DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider(userDetailsService);
 
         authenticationProvider.setPasswordEncoder(passwordEncoder());
         return authenticationProvider;
     }
 
     @Bean
-    public AuthenticationManager authManager(AuthenticationConfiguration authConfig){
+    public AuthenticationManager authManager(AuthenticationConfiguration authConfig) {
         return authConfig.getAuthenticationManager();
     }
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http){
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         return http
                 .csrf(AbstractHttpConfigurer::disable)
                 .exceptionHandling(exception -> exception
@@ -69,32 +68,28 @@ public class SecurityConfig {
                         .requestMatchers("/v3/api-docs/**").permitAll()
                         .requestMatchers("/h2-console/**").permitAll()
                         .requestMatchers("/swagger-ui/**").permitAll()
-                        .requestMatchers("/api/public/**").permitAll()
-                        .requestMatchers("/api/admin/**").permitAll()
+                        // .requestMatchers("/api/public/**").permitAll()
+                        // .requestMatchers("/api/admin/**").permitAll()
                         .requestMatchers("/api/test/**").permitAll()
                         .requestMatchers("/images/**").permitAll()
-                        .anyRequest().authenticated()
-                )
-                .sessionManagement(session ->
-                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                        .anyRequest().authenticated())
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider())
                 .headers(headers -> headers.frameOptions(
-                        frameOptions -> frameOptions.sameOrigin()
-                ))
+                        frameOptions -> frameOptions.sameOrigin()))
                 .addFilterBefore(authenticationJWTTokenFilter(), UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
 
     @Bean
-    public WebSecurityCustomizer securityCustomizer(){
+    public WebSecurityCustomizer securityCustomizer() {
         return (web -> {
             web.ignoring().requestMatchers(
                     "/v2/api-docs/**",
                     "/configuration-resources/**",
                     "/configuration/security/**",
                     "/swagger-ui.html",
-                    "/webjars/**"
-            );
+                    "/webjars/**");
         });
     }
 }
