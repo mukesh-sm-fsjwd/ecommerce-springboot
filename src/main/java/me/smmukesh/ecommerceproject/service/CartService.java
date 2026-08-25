@@ -123,4 +123,16 @@ public class CartService {
                 }).toList();
         return cartDTOs;
     }
+
+    public CartDTO getCart(String emailId, Long cartId) {
+        Cart cart = cartRepository.getCartByEmailAndCartId(emailId,cartId)
+                .orElseThrow(() -> new ResourceNotFoundException("Cart","Cart Id",cartId));
+        CartDTO cartDTO = modelMapper.map(cart,CartDTO.class);
+        cart.getCartItems().forEach(c -> c.getProduct().setQuantity(c.getQuantity()));
+        List<ProductRequest> products = cart.getCartItems().stream()
+                .map(product -> modelMapper.map(product.getProduct(), ProductRequest.class))
+                .toList();
+        cartDTO.setProducts(products);
+        return cartDTO;
+    }
 }
