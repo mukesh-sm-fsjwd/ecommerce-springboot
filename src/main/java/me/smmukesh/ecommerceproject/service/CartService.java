@@ -161,7 +161,7 @@ public class CartService {
             throw new APIException("Cart item quantity cannot go below 0. Use the delete endpoint to remove the item.");
         }
         if (newCartQuantity == 0){
-//            deleteProductFromCart(cartId,productId);
+            deleteProductFromCart(cartId,productId);
         }
         if (product.getQuantity() < newCartQuantity) {
             throw new APIException(product.getProductName() + " has only " + product.getQuantity() + " stocks left.");
@@ -186,6 +186,19 @@ public class CartService {
                 });
         cartDTO.setProducts(productRequestStream.toList());
         return cartDTO;
+    }
+
+    @Transactional
+    public String deleteProductFromCart(Long cartId, Long productId) {
+        Cart cart = cartRepository.findById(cartId)
+                .orElseThrow(() -> new ResourceNotFoundException("Cart", "Cart Id", cartId));
+        CartItem cartItem = cartItemRepository.findCartItemByProductIdAndCartId(cartId, productId);
+        if (cartItem == null) {
+            throw new ResourceNotFoundException("Product", "Product Id", productId);
+        }
+        cart.setTotalPrice(cart.getTotalPrice() - (cartItem.getProductPrice() * cartItem.getQuantity()));
+        cartItemRepository.deleteCartItemByProductIdAndCartId(cartId, productId);
+        return "Cart Item " + cartItem.getProduct().getProductName() + " removed Successfully";
     }
 
 }
