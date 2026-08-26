@@ -1,11 +1,14 @@
 package me.smmukesh.ecommerceproject.service;
 
+import me.smmukesh.ecommerceproject.dto.request.CartDTO;
 import me.smmukesh.ecommerceproject.dto.request.ProductRequest;
 import me.smmukesh.ecommerceproject.dto.response.ProductResponse;
 import me.smmukesh.ecommerceproject.exception.APIException;
 import me.smmukesh.ecommerceproject.exception.ResourceNotFoundException;
+import me.smmukesh.ecommerceproject.model.Cart;
 import me.smmukesh.ecommerceproject.model.Category;
 import me.smmukesh.ecommerceproject.model.Product;
+import me.smmukesh.ecommerceproject.repository.CartRepository;
 import me.smmukesh.ecommerceproject.repository.CategoryRepository;
 import me.smmukesh.ecommerceproject.repository.ProductRepository;
 import org.modelmapper.ModelMapper;
@@ -27,6 +30,8 @@ public class ProductService {
     private final CategoryRepository categoryRepository;
     private final FileService fileService;
     private final ModelMapper modelMapper;
+    private final CartRepository cartRepository;
+    private final CartService cartService;
 
     @Value("${project.image}")
     String path = "images/";
@@ -34,11 +39,15 @@ public class ProductService {
     public ProductService(ProductRepository productRepository,
             CategoryRepository categoryRepository,
             FileService fileService,
-            ModelMapper modelMapper) {
+            ModelMapper modelMapper,
+                          CartRepository cartRepository,
+                          CartService cartService) {
         this.productRepository = productRepository;
         this.categoryRepository = categoryRepository;
         this.fileService = fileService;
         this.modelMapper = modelMapper;
+        this.cartRepository = cartRepository;
+        this.cartService = cartService;
     }
 
     public ProductResponse getAllProducts(int pageNumber, int pageSize, String sortBy, String sortOrder) {
@@ -170,6 +179,19 @@ public class ProductService {
         double updatedSpecialPrice = productFromDb.getPrice() - productFromDb.getDiscount();
         productFromDb.setSpecialPrice(updatedSpecialPrice);
 
+        List<Cart> carts = cartRepository.findCartsByProductId(productId);
+
+        List<CartDTO> cartDTOs = carts.stream()
+                .map(cart -> {
+                    CartDTO cartDTO = modelMapper.map(cart,CartDTO.class);
+                    List<ProductRequest> productRequests = cart.getCartItems().stream()
+                            .map(p -> modelMapper.map(p.getProduct(),ProductRequest.class))
+                            .toList();
+                    cartDTO.setProducts(productRequests);
+                    return cartDTO;
+                }).toList();
+
+        cartDTOs.forEach(cart -> cartService.updateProductsInCart(cart.getCartId(),productId));
         // 3. save to db
         productRepository.save(productFromDb);
 
@@ -179,6 +201,9 @@ public class ProductService {
     public ProductRequest deleteProduct(long productId) {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new ResourceNotFoundException("Product", "ProductId", productId));
+
+        List<Cart> carts = cartRepository.findCartsByProductId(productId);
+        carts.forEach(cart -> cartService.deleteProductFromCart(cart.getCartId(),productId));
         productRepository.deleteById(productId);
         return modelMapper.map(product, ProductRequest.class);
     }
