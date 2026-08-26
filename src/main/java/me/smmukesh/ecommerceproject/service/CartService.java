@@ -201,4 +201,22 @@ public class CartService {
         return "Cart Item " + cartItem.getProduct().getProductName() + " removed Successfully";
     }
 
+    public void updateProductsInCart(Long cartId, long productId) {
+        Cart cart = cartRepository.findById(cartId)
+                .orElseThrow(() -> new ResourceNotFoundException("Cart", "cart Id", cartId));
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new ResourceNotFoundException("Product", "Product Id", productId));
+
+        CartItem cartItem = cartItemRepository.findCartItemByProductIdAndCartId(cartId,productId);
+        if (cartItem == null){
+            throw new APIException("Product "+product.getProductName()+" does not exists in the cart.");
+        }
+
+        double cartPrice = cart.getTotalPrice() - (cartItem.getProductPrice() * cartItem.getQuantity());
+
+        cartItem.setProductPrice(product.getSpecialPrice());
+        cart.setTotalPrice(cartPrice + (cartItem.getProductPrice() * cartItem.getQuantity()));
+        cartItem = cartItemRepository.save(cartItem);
+
+    }
 }
