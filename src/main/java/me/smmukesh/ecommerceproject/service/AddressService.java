@@ -52,4 +52,12 @@ public class AddressService {
                 .orElseThrow(() -> new ResourceNotFoundException("Address","addressId",addressId));
         return modelMapper.map(address, AddressDTO.class);
     }
+
+    public List<AddressDTO> getAddressesOfUser(User user) {
+        List<Address> addresses = user.getAddresses();
+        List<AddressDTO> addressDTOs = addresses.stream()
+                .map(address -> modelMapper.map(address, AddressDTO.class))
+                .toList();
+        return addressDTOs;
+    }
 }
