@@ -37,4 +37,12 @@ public class AddressService {
         return modelMapper.map(savedAddress,AddressDTO.class);
     }
 
+    public List<AddressDTO> getAllAddresses() {
+        List<Address> addresses = addressRepository.findAll();
+        List<AddressDTO> addressDTOs = addresses.
+                stream()
+                .map(address -> modelMapper.map(address, AddressDTO.class))
+                .toList();
+        return addressDTOs;
+    }
 }
