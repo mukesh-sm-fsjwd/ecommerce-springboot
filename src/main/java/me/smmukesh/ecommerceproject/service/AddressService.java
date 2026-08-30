@@ -60,4 +60,23 @@ public class AddressService {
                 .toList();
         return addressDTOs;
     }
+
+    public AddressDTO updateAddressById(Long addressId, AddressDTO addressDTO) {
+        Address address = addressRepository.findById(addressId)
+                .orElseThrow(() -> new ResourceNotFoundException("Address","Address Id",addressId));
+        address.setCity(addressDTO.getCity());
+        address.setCountry(addressDTO.getCountry());
+        address.setState(addressDTO.getState());
+        address.setStreet(addressDTO.getStreet());
+        address.setBuildingName(addressDTO.getBuildingName());
+        address.setPincode(addressDTO.getPincode());
+        Address savedAddress = addressRepository.save(address);
+
+        User user = savedAddress.getUser();
+        user.getAddresses().removeIf(currentAddress -> currentAddress.getAddressId().equals(addressId));
+        user.getAddresses().add(savedAddress);
+        userRepository.save(user);
+
+        return modelMapper.map(savedAddress, AddressDTO.class);
+    }
 }
