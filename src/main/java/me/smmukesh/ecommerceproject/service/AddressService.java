@@ -79,4 +79,13 @@ public class AddressService {
 
         return modelMapper.map(savedAddress, AddressDTO.class);
     }
+
+    public void deleteAddressById(Long addressId) {
+        Address address = addressRepository.findById(addressId)
+                .orElseThrow(() -> new ResourceNotFoundException("Address","address id",addressId));
+        User user = address.getUser();
+        user.getAddresses().removeIf(currentAddress -> currentAddress.getAddressId().equals(addressId));
+        userRepository.save(user);
+        addressRepository.delete(address);
+    }
 }

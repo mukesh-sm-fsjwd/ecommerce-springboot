@@ -2,6 +2,7 @@ package me.smmukesh.ecommerceproject.controller;
 
 import jakarta.validation.Valid;
 import me.smmukesh.ecommerceproject.dto.request.AddressDTO;
+import me.smmukesh.ecommerceproject.dto.response.APIResponse;
 import me.smmukesh.ecommerceproject.model.User;
 import me.smmukesh.ecommerceproject.service.AddressService;
 import me.smmukesh.ecommerceproject.utils.AuthUtils;
@@ -58,5 +59,15 @@ public class AddressController {
         AddressDTO address = addressService.updateAddressById(addressId,addressDTO);
         return ResponseEntity.status(HttpStatus.OK)
                 .body(address);
+    }
+
+    @DeleteMapping("/addresses/{addressId}")
+    public ResponseEntity<APIResponse> deleteAddressById(@PathVariable Long addressId){
+        addressService.deleteAddressById(addressId);
+        APIResponse apiResponse = new APIResponse();
+        apiResponse.setMessage("Address With Id "+addressId+" Deleted Successfully");
+        apiResponse.setStatus(true);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(apiResponse);
     }
 }
