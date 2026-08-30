@@ -2,6 +2,7 @@ package me.smmukesh.ecommerceproject.service;
 
 import jakarta.validation.Valid;
 import me.smmukesh.ecommerceproject.dto.request.AddressDTO;
+import me.smmukesh.ecommerceproject.exception.ResourceNotFoundException;
 import me.smmukesh.ecommerceproject.model.Address;
 import me.smmukesh.ecommerceproject.model.User;
 import me.smmukesh.ecommerceproject.repository.AddressRepository;
@@ -44,5 +45,11 @@ public class AddressService {
                 .map(address -> modelMapper.map(address, AddressDTO.class))
                 .toList();
         return addressDTOs;
+    }
+
+    public AddressDTO getAddressById(Long addressId) {
+        Address address =  addressRepository.findById(addressId)
+                .orElseThrow(() -> new ResourceNotFoundException("Address","addressId",addressId));
+        return modelMapper.map(address, AddressDTO.class);
     }
 }
