@@ -12,6 +12,9 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class AddressDTO {
+
+    private Long addressId;
+
     @NotBlank
     @Size(min = 5,message = "The Street name must be at least 5 characters in size.")
     private String street;
@@ -36,3 +39,4 @@ public class AddressDTO {
     @Size(min = 6,message = "The pin code must be at least 6 characters in size.")
     private String pincode;
 }
+
