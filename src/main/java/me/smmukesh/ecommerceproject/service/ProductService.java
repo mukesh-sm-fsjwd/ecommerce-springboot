@@ -209,21 +209,62 @@ public class ProductService {
     }
 
     public ProductRequest updateProductImage(long productId, MultipartFile image) throws IOException {
-        // 1. Get the product from db.
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new ResourceNotFoundException("Product", "ProductId", productId));
-        // 2. Upload the image to the server.
-        // 3. Get the file name from the image.
+
+        if (product.getImages().size() >= 12) {
+            throw new APIException("Product cannot have more than 12 images.");
+        }
 
         String fileName = fileService.uploadImage(path, image);
+        if (!product.getImages().contains(fileName)) {
+            product.getImages().add(fileName);
+        }
+        product.setImage(product.getImages().get(0));
 
-        // 4. Update the file name to the product.
-        product.setImage(fileName);
-
-        // 5. Save the product
         Product savedProduct = productRepository.save(product);
+        return modelMapper.map(savedProduct, ProductRequest.class);
+    }
 
-        // 6. Return the ProductRequest.
+    public ProductRequest updateProductImages(long productId, MultipartFile[] imageFiles) throws IOException {
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new ResourceNotFoundException("Product", "ProductId", productId));
+
+        int currentCount = product.getImages().size();
+        int newCount = imageFiles != null ? imageFiles.length : 0;
+        if (currentCount + newCount > 15) {
+            throw new APIException("A product can have a maximum of 15 images. Current: " + currentCount + ", Attempted: " + newCount);
+        }
+
+        if (imageFiles != null) {
+            for (MultipartFile file : imageFiles) {
+                if (file != null && !file.isEmpty()) {
+                    String fileName = fileService.uploadImage(path, file);
+                    if (!product.getImages().contains(fileName)) {
+                        product.getImages().add(fileName);
+                    }
+                }
+            }
+        }
+
+        if (!product.getImages().isEmpty()) {
+            product.setImage(product.getImages().get(0));
+        }
+
+        Product savedProduct = productRepository.save(product);
+        return modelMapper.map(savedProduct, ProductRequest.class);
+    }
+
+    public ProductRequest deleteProductImage(long productId, String imageName) {
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new ResourceNotFoundException("Product", "ProductId", productId));
+
+        product.getImages().remove(imageName);
+        if (product.getImage() != null && product.getImage().equals(imageName)) {
+            product.setImage(product.getImages().isEmpty() ? "default.png" : product.getImages().get(0));
+        }
+
+        Product savedProduct = productRepository.save(product);
         return modelMapper.map(savedProduct, ProductRequest.class);
     }
 }
