@@ -7,6 +7,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Getter
 @Setter
 @AllArgsConstructor
@@ -18,6 +21,7 @@ public class ProductRequest {
     @Size(min = 3,message = "Product Name at least should contain 3 characters")
     private String productName;
     private String image;
+    private List<String> images = new ArrayList<>();
 
     @NotBlank
     @Size(min = 5,message = "Product Name at least should contain 5 characters")
