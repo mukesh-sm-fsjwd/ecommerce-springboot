@@ -92,4 +92,22 @@ public class ProductController {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(productRequest);
     }
+
+    @PutMapping("admin/products/{productId}/images")
+    public ResponseEntity<ProductRequest> updateProductImages(
+            @PathVariable long productId,
+            @RequestParam("images") MultipartFile[] images) throws IOException {
+        ProductRequest productRequest = productService.updateProductImages(productId, images);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(productRequest);
+    }
+
+    @DeleteMapping("admin/products/{productId}/images/{imageName}")
+    public ResponseEntity<ProductRequest> deleteProductImage(
+            @PathVariable long productId,
+            @PathVariable String imageName) {
+        ProductRequest productRequest = productService.deleteProductImage(productId, imageName);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(productRequest);
+    }
 }
