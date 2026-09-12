@@ -18,6 +18,13 @@ public class Product {
     private Long productId;
     private String productName;
     private String image;
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "product_images", joinColumns = @JoinColumn(name = "product_id"))
+    @Column(name = "image_name")
+    private List<String> images = new ArrayList<>();
+
+    @Column(columnDefinition = "TEXT")
     private String description;
     private Integer quantity;
     private Double price;
