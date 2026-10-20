@@ -29,5 +29,13 @@ build/
 !**/src/main/**/build/
 !**/src/test/**/build/
 
-### VS Code ###
+### VS Code & Environment ###
 .vscode/
+*.env
+*.env.local
+.DS_Store
+
+### User Uploaded Images / Scratch ###
+images/*
+!images/.gitkeep
+
