@@ -2,6 +2,7 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/Spring%20Boot-4.1.0-brightgreen?style=for-the-badge&logo=springboot&logoColor=white" />
+  <img src="https://img.shields.io/badge/Spring%20AI-2.0.1-6DB33F?style=for-the-badge&logo=spring&logoColor=white" />
   <img src="https://img.shields.io/badge/Java-21-orange?style=for-the-badge&logo=openjdk&logoColor=white" />
   <img src="https://img.shields.io/badge/PostgreSQL-Database-316192?style=for-the-badge&logo=postgresql&logoColor=white" />
   <img src="https://img.shields.io/badge/Spring%20Security-JWT-6DB33F?style=for-the-badge&logo=springsecurity&logoColor=white" />
@@ -17,11 +18,11 @@
 
 ## Overview
 
-This is the **backend service** of a full-stack e-commerce application I'm building. Everything on the server side lives here — authentication, product management, cart, user addresses, and the security layer. A **React.js frontend** will be connected to this once the backend is complete.
+This is the **backend service** of a full-stack e-commerce application I'm building. Everything on the server side lives here — authentication, product management, cart, user addresses, AI-driven seller tools, and the security layer. A **React.js frontend** will be connected to this once the backend is complete.
 
-The project started with just a category module. Two months in, it's got a proper auth system with JWT + Spring Security, product management with pagination and image uploads, a fully working cart, and address management tied to logged-in users.
+The project started with just a category module. Over the development period, it has grown to include a proper auth system with JWT + Spring Security, product management with pagination and image uploads, a fully working cart, address management tied to logged-in users, and modern Spring AI integrations for smart product workflows.
 
-Still going. Orders, payments, and Swagger docs are next.
+Still going. Orders, payments, RAG customer support assistant, and Swagger docs are next.
 
 ---
 
@@ -31,26 +32,29 @@ Still going. Orders, payments, and Swagger docs are next.
 src/
 └── main/
     ├── java/me/smmukesh/ecommerceproject/
-    │   ├── config/              # App config, security config, constants & data initializer
-    │   ├── controller/          # REST controllers (Auth, Product, Cart, Category, Address)
+    │   ├── config/              # App config, security config, Spring AI config, constants & data initializer
+    │   ├── controller/          # REST controllers (Auth, Product, Cart, Category, Address, ProductAiController)
     │   ├── dto/
-    │   │   ├── request/         # Incoming request DTOs
-    │   │   └── response/        # Outgoing response DTOs
+    │   │   ├── request/         # Incoming request DTOs (Auth, Address, AI description & banner requests)
+    │   │   └── response/        # Outgoing response DTOs (API responses, AI analysis, banner, search, scraped images)
     │   ├── exception/           # Custom exceptions + global exception handler
-    │   ├── model/               # JPA entity classes
+    │   ├── model/               # JPA entity classes (User, Role, Category, Product, Cart, CartItem, Address)
     │   ├── repository/          # Spring Data JPA repositories
     │   ├── security/
     │   │   ├── jwt/             # JWT filter, entry point, and utilities
     │   │   ├── request/         # Auth request models (Login, Signup)
     │   │   ├── response/        # Auth response models
     │   │   └── service/         # UserDetailsImpl & UserDetailsServiceImpl
-    │   ├── service/             # Business logic (Category, Product, Cart, Address, File)
+    │   ├── service/             # Business logic:
+    │   │                        # - Core: CategoryService, ProductService, CartService, AddressService, FileService
+    │   │                        # - AI: ProductAiService, ProductEmbeddingService, ProductImageAiService,
+    │   │                        #       ProductBannerService, ProductImageScraperService
     │   └── utils/               # AuthUtils (gets logged-in user from context)
     └── resources/
         └── application.properties
 ```
 
-> Follows the **Controller → Service → Repository** layered pattern throughout. Security is handled as a separate concern with its own package.
+> Follows the **Controller → Service → Repository** layered pattern throughout. Security and AI integrations are handled with dedicated modular services.
 
 ---
 
@@ -68,6 +72,7 @@ src/
 | **ModelMapper 3.2.4** | Entity to DTO mapping |
 | **Bean Validation (Jakarta)** | Request body validation |
 | **Lombok** | Reducing boilerplate code |
+| **Spring AI 2.0.1** | OpenAI integration (ChatClient, Vector Store, Image Models) |
 | **Maven** | Build & dependency management |
 
 ---
@@ -139,6 +144,21 @@ The app uses **stateless JWT-based authentication** with cookies.
 | `PUT` | `/api/addresses/{addressId}` | Update an address | Authenticated |
 | `DELETE` | `/api/addresses/{addressId}` | Delete an address | Authenticated |
 
+### AI Services — `/api`
+
+| Method | Endpoint | Description | Access |
+|---|---|---|---|
+| `POST` | `/api/admin/products/generate-description` | Generate product description from details using AI | Admin |
+| `POST` | `/api/admin/products/{productId}/generate-description` | Generate description for existing product | Admin |
+| `GET` | `/api/public/products/search/semantic` | Semantic product search using vector embeddings | Public |
+| `POST` | `/api/admin/products/sync-embeddings` | Sync products to vector store | Admin |
+| `POST` | `/api/admin/products/analyze-image` | Analyze product image with vision model | Admin |
+| `POST` | `/api/admin/products/{productId}/analyze-image` | Analyze existing product image | Admin |
+| `POST` | `/api/admin/products/generate-banner` | Generate marketing banner using image model | Admin |
+| `POST` | `/api/admin/products/{productId}/generate-banner` | Generate banner for existing product | Admin |
+| `POST` | `/api/admin/products/scrape-images` | Scrape product photos from web | Admin |
+| `POST` | `/api/admin/products/{productId}/attach-scraped-images` | Download and attach images to product gallery | Admin |
+
 ---
 
 ## Getting Started
@@ -208,6 +228,15 @@ Product images are handled via `MultipartFile` uploads and stored under the `ima
 `GlobalExceptionHandler` (`@RestControllerAdvice`) catches:
 - `MethodArgumentNotValidException` — returns a field-level error map (`400`)
 - `ResourceNotFoundException` — returns a descriptive `404` message
+- `APIException` — handles operational errors and model response issues
+
+### AI Architecture & Spring AI Integration
+Spring AI 2.0.1 is integrated into the backend architecture to support practical e-commerce workflows without compromising core business logic:
+- **ChatClient with Structured Converter**: Uses `PromptTemplate` and `BeanOutputConverter` to produce structured JSON containing taglines, bullet points, and descriptions from seller inputs.
+- **Vector Search Engine**: Implements an in-memory vector store with OpenAI text embeddings to enable semantic product discovery alongside keyword search.
+- **Multimodal Image Inspector**: Accepts uploaded product photos and analyzes visual details to auto-suggest titles, categories, and key features.
+- **Promotional Banner Generator**: Connects to OpenAI image generation models to create promotional campaign graphics on demand.
+- **Web Photo Scraper & Disk Storage**: Scrapes clean product photos from the web and decodes them directly into the local `images/` directory and `product_images` database table.
 
 ---
 
@@ -218,7 +247,7 @@ Product images are handled via `MultipartFile` uploads and stored under the `ima
 | `User` | `userId`, `userName`, `email`, `password`, `roles`, `addresses`, `cart` |
 | `Role` | `roleId`, `roleName` (ROLE_USER / ROLE_SELLER / ROLE_ADMIN) |
 | `Category` | `categoryId`, `categoryName` |
-| `Product` | `productId`, `productName`, `description`, `price`, `discount`, `specialPrice`, `quantity`, `image`, `category` |
+| `Product` | `productId`, `productName`, `description`, `price`, `discount`, `specialPrice`, `quantity`, `image`, `images`, `category` |
 | `Cart` | `cartId`, `user`, `cartItems`, `totalPrice` |
 | `CartItem` | `cartItemId`, `cart`, `product`, `quantity`, `discount`, `productPrice` |
 | `Address` | `addressId`, `street`, `buildingName`, `city`, `state`, `country`, `pincode`, `user` |
@@ -237,12 +266,18 @@ Product images are handled via `MultipartFile` uploads and stored under the `ima
 - [x] Address management (linked to logged-in user)
 - [x] Migrated from H2 to PostgreSQL
 - [x] Stateless session management (no server-side sessions)
+- [x] AI Product Description Generator (Spring AI ChatClient & Structured Output)
+- [x] AI Semantic Product Search (Vector Store & Embeddings)
+- [x] Multimodal Vision Inspector (Product image auto-fill)
+- [x] AI Marketing Banner Generator (OpenAI Image Model)
+- [x] Online Product Image Scraper & Multi-image Gallery persistence
 
 ### Upcoming
-- [ ] **Order & Payments Module** — place orders, track order status, payment integration
-- [ ] **Swagger / OpenAPI Docs** — interactive API documentation at `/swagger-ui`
-- [ ] **React.js Frontend** — full UI wired to this backend
-- [ ] **AWS Deployment** — host on EC2 / Elastic Beanstalk with RDS for PostgreSQL
+- [ ] **RAG Customer Support Assistant** — conversational store support with chat memory and vector retrieval
+- [ ] **Order & Payments Module** — checkout, order tracking, and payment processing
+- [ ] **Swagger / OpenAPI Documentation** — interactive API documentation at `/swagger-ui`
+- [ ] **React.js Frontend** — complete user interface integrated with all backend REST endpoints
+- [ ] **AWS Deployment** — backend hosting on EC2 / Elastic Beanstalk with RDS PostgreSQL
 
 ---
 
